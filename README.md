@@ -13,10 +13,10 @@ BTW, I use the 6502 the most, but also work with code for the Z80, 8080/8085, 68
 You can run this from the command line once you enable execute priveles for the the file under Linux. You can request help and should see something like this:
 
 ```
-$ ./prettyASM.py -h
-usage: prettyASM.py [-h] [-l] [-L] [--colon {add,remove}] [-o] [-O] [-s] [-c]
-                    [-C] [-v] [--tabs TAB TAB TAB]
-                    input_file output_file
+$ ./PrettyASM.py -h
+usage: prettyasm [-h] [-l] [-L] [--colon {add,remove}] [-o] [-O] [-s] [-c]
+                 [-C] [--tabs TAB TAB TAB] [-k]
+                 input_file output_file
 
 Pretty formatting for 8-bit assembly code.
 
@@ -24,7 +24,7 @@ positional arguments:
   input_file            input file name
   output_file           output file name
 
-optional arguments: 
+optional arguments:
   -h, --help            show this help message and exit
   -l, --llower          convert labels to lower case
   -L, --lupper          convert labels to UPPER CASE
@@ -34,17 +34,17 @@ optional arguments:
   -s, --space           single space between opcode and operands
   -c, --clower          convert comments to lower case
   -C, --cupper          convert comments to UPPER CASE
-  -v                    generate verbose debugging info
   --tabs TAB TAB TAB    Tab space for opcode, operade, and comment
-  ```
+  -k, --clobber         overwrite existing file with output file
+```
 
 I typically use the following command line:
 
-`$ ./prettyASM.py -los input.asm output.asm`
+`$ ./prettyasm -losk input.asm output.asm`
 
-This forces labels, opcodes, and operands to lower case. It also puts a single space between the opcode and operand instead of expanding that out fully. By default, colons are added after labels.
+This forces labels, opcodes, and operands to lower case. It also puts a single space between the opcode and operand instead of expanding that out fully. By default, colons are added after labels. Finally, the `-k` option allows you to clobber any previous output file that might have the same name.
 
-Semicolon comment indicators are used. In the old days, some of the 6502 assemblers I used expected the astrik instead. (Other 6502 assemblers used the astrix as a tolken for the current address and it would show up in the first column to set the address.
+Semicolon comment indicators are what is mostly used today. In the old days, some of the 6502 assemblers I used expected the astrik instead. (Other 6502 assemblers used the astrix as a tolken for the current address and it would show up in the first column to set the address.
 
 It was also more common to do some elaborate work with comments for things like:
 
@@ -71,6 +71,8 @@ I really don't like not having a space after the `;`. Pretty ASM will add a spac
 ## Testing
 
 I have created a fairly messy assembly file to run various test cases in the code against. If you think there are other ideas on things to fix or test for, I would be interested in hearing about them.
+
+There is also a `-v` option from the command line (that is not listed in the help output) that will print details of what is happening as it goes through a source file line-by-line. This can help with debugging.
 
 
 ## Future Features
