@@ -52,9 +52,13 @@ askor = True # Treat an "*" in column one as origin, not a comment
 
 #trbsh = not True # flag to turn on troubleshooting options
 
-def out_file_precheck(outfile):
-# This will check to see if a file with the same name as the output
-# file exists and either exit or delete it if it does
+def file_precheck(infile,outfile):
+# This will check to see if 1) if the input file actually exists and
+# 2) wheter a file with the same name as the output file exists.
+
+    if not os.path.isfile(infile):
+        print("Not file with the specified name was found.")
+        quit()
 
     if os.path.isfile(outfile):
         print("File with output file name already exists.")
@@ -352,7 +356,7 @@ outfl = args.output_file
 # If we haven't said it is okay to clobber an existing file,
 # check to see if there is an existing file.
 if not args.clobber:
-    out_file_precheck(outfl)
+    file_precheck(infl,outfl)
 
 with open(infl) as f1:
     with open(outfl, "w") as f2:
