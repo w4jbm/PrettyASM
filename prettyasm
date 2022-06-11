@@ -7,8 +7,6 @@
 # Copyright 2020, 2022 by James McClanahan W4JBM
 # and released under the MIT License.
 #
-# By Jim McClanahan, W4JBM
-#
 # Mainly have used with 6502 assembly language code that is for the
 # 64tass assembler. On some projects, the source code was getting
 # messy and I'm bad about having a mix of tabs and spaces depending
@@ -43,7 +41,7 @@ spcfl = True # Force space after colon on full line comments?
 # handled the label, opcode, and operand and simply discarded anything
 # remaining as a "comment".
 
-askor = True # Treat an "*" in column one as origin, not a comment
+#askor = True # Treat an "*" in column one as origin, not a comment
 
 #opcol = 10 # opcodes go in this column
 #opspc = False # just put a space between opcode and operand
@@ -52,15 +50,42 @@ askor = True # Treat an "*" in column one as origin, not a comment
 
 #trbsh = not True # flag to turn on troubleshooting options
 
-def file_precheck(infile,outfile):
+### Other Constancts and such...
+
+# Some assemblers support local labels that are only valid
+# within a range or labels within macros that may start with
+# an underscore, a period or a dollar sign. More may be added
+# over time.
+
+special_labels = "_$."
+
+# If the add colon option is set, there are still certain
+# types (such as an equate) where we traditionally do not
+# include the colon in a "label" or constant name.
+#
+# The opcode has been converted to lower case prior to
+# comparison.
+
+special_opcodes = ["equ", "=", ".macro"]
+
+# There are directives in the opcode column that would typically
+# indicate that we should not tinker with the case of the operand
+# because it is some type of text.
+
+special_directives = [".text", ".null", ".shift", ".ptext"]
+
+def file_precheck(infile,outfile,clbr_flag):
 # This will check to see if 1) if the input file actually exists and
 # 2) wheter a file with the same name as the output file exists.
+#
+# If the output file exists and the clobber flag is set, then we can
+# overwrite it.
 
     if not os.path.isfile(infile):
         print("Not file with the specified name was found.")
         quit()
 
-    if os.path.isfile(outfile):
+    if not clbr_flag and os.path.isfile(outfile):
         print("File with output file name already exists.")
         print("Use the -k option to clobber or select a different name.")
         quit()
@@ -90,13 +115,17 @@ def line_type(x):
     if is_blank(x):
         return(1)
 
-    if x[0]==";" or (not askor and x[0]=="*"):
+    if x[0]==";" or ((not askor) and x[0]=="*"):
         return(2)
 
-    # Some assemblers support local labels that are only valid
-    # within a range and may start with a period or a dollar sign
+    # Some assemblers support local labels or labels within macros
+    # that start with a non-alpha character
+    #
+    # Also * may be a label when setting the program counter in some
+    # assemblers (or, more rarely tese days, indicate a comment in
+    # others)
 
-    if x[0].isalpha() or (x[0] in "$.") or (askor and x[0]=="*"):
+    if x[0].isalpha() or (x[0] in special_labels) or (askor and x[0]=="*"):
         return(3)
 
     if x[0]==" " or x[0]=="/t":
@@ -125,10 +154,10 @@ def get_label(x):
         line_lbl = line_lbl[:-1]
 
     # Now add colon if option is set, but not if it
-    # part of an equate
+    # part of an equate and not an asterisk
     line_nxt = line.lower().split()[1]
 
-    if lbcln and line_nxt != "equ" and line_nxt != "=":
+    if lbcln and line_lbl !="*" and not (line_nxt in special_opcodes):
         line_lbl = line_lbl + ":"
     return(line_lbl)
 
@@ -283,6 +312,7 @@ parser.add_argument("-c", "--clower", action="store_true", help="convert comment
 parser.add_argument("-C", "--cupper", action="store_true", help="convert comments to UPPER CASE")
 parser.add_argument("--tabs", type=int, nargs=3, default=[12,18,28], metavar="TAB", help="Tab space for opcode, operade, and comment")
 parser.add_argument("-k", "--clobber", action="store_true", help="overwrite existing file with output file")
+parser.add_argument("-a", "--asterisk", action="store_true", help=argparse.SUPPRESS) # treat leading astrerisk as comment
 parser.add_argument("-v", action="store_true", help=argparse.SUPPRESS) # Verbose output for troubleshooting
 
 args = parser.parse_args()
@@ -348,15 +378,21 @@ cmcol = args.tabs[2]
 
 trbsh = args.v
 
+# Treat leading asterisk as a origin (default) or as comment?
+#
+# Note: This option is not listed in the help screen
+
+askor = not args.asterisk
+
 # Seperate out the file names provided
 
 infl = args.input_file
 outfl = args.output_file
 
-# If we haven't said it is okay to clobber an existing file,
-# check to see if there is an existing file.
-if not args.clobber:
-    file_precheck(infl,outfl)
+# Check to see if the source file exists and see if a destination file
+# that should not be clobbered exists. Exit with message if something
+# doesn't look right.
+file_precheck(infl,outfl,args.clobber)
 
 with open(infl) as f1:
     with open(outfl, "w") as f2:
@@ -368,7 +404,7 @@ with open(infl) as f1:
             # so having everything be spaces might make life easier
             line = line_raw.replace('\t', ' ')
 
-            line_count += 1 # increment line count
+            line_count += 1 # increment line count for troubleshooting
 
             if trbsh:
                 f2.write("__processing line "+str(line_count)+"__\n")
@@ -409,7 +445,7 @@ with open(infl) as f1:
             # operands to upper or lower case from changing the
             # case of some psydo op codes like those preceeding
             # a portion of text--manually expanded with experience
-            if (line_opcode.lower() == ".text"):
+            if (line_opcode.lower() in special_opcodes):
                 preserve_case = True
             else:
                 preserve_case = False
@@ -437,7 +473,7 @@ with open(infl) as f1:
                 new_op = line_opcode + " " + line_operand
             else:
                 # Added space so that even if there is an overrun we
-                # do no blur things together (for example, .text is a
+                # do not blur things together (for example, .text is a
                 # really long psydo op-code)
                 new_op = line_opcode.ljust(orcol-opcol-1) + " " + line_operand
 
