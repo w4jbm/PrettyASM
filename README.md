@@ -67,6 +67,8 @@ The problem is that some code I have tinkered with has comments like this in it:
 
 I really don't like not having a space after the `;`. Pretty ASM will add a space in the later example, but is smart enough to look at the second character of a comment line and check for a space or a second `;`. If it sees either of those, it will not add a space. So far this logic seems to work with the code I have tested.
 
+No modern assembler I use assumes asterisks at the first of a line are comments, not a reference to the program counter. But if you do want to let asterisks be receognized as the start of full-line comments there is a `-a` or `--asterisk` option that will treat those lines as comments and basically pass them through unchanged.
+
 
 ## Testing
 
