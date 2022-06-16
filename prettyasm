@@ -2,8 +2,6 @@
 #
 # prettyASM - Do bulk changes to .ASM code to make thing prettier
 #
-# USAGE: ./prettyASM.py filename.ext
-#
 # Copyright 2020, 2022 by James McClanahan W4JBM
 # and released under the MIT License.
 #
@@ -82,7 +80,7 @@ def file_precheck(infile,outfile,clbr_flag):
 # overwrite it.
 
     if not os.path.isfile(infile):
-        print("Not file with the specified name was found.")
+        print("No file with the specified name was found.")
         quit()
 
     if not clbr_flag and os.path.isfile(outfile):
@@ -396,18 +394,14 @@ file_precheck(infl,outfl,args.clobber)
 
 with open(infl) as f1:
     with open(outfl, "w") as f2:
-        line_count =0
-
-        for line_raw in f1:
+        for line_index, line_raw in enumerate(f1, start=1):
 
             # we care about whitespace, not whether it is a tab,
             # so having everything be spaces might make life easier
             line = line_raw.replace('\t', ' ')
 
-            line_count += 1 # increment line count for troubleshooting
-
             if trbsh:
-                f2.write("__processing line "+str(line_count)+"__\n")
+                f2.write("__processing line "+str(line_index)+"__\n")
             linet = line_type(line)
 
             # Print Blank Line
