@@ -2,7 +2,7 @@
 
 PrettyASM is a code formatting tool designed for 8-bit assembly language for processors such as the 6502, Z80, and 6809.
 
-I have tried some "auto-format" tools and not had a great deal of success. In the old days when all code was in upper case actually tabs (Control-I, chr$(9) kind of things) were viewed more favorably, some did okay. But my recent projects needed something and were getting too large for line-by-line manual formatting.
+I have tried some "auto-format" tools and not had a great deal of success. In the old days when all code was in upper case and real tabs (Control-I, chr$(9) kind of things) were viewed more favorably, some did okay. But my recent projects needed something and were getting too large for line-by-line manual formatting.
 
 I have used Python (primarily for data science type applications) and decided this was a chance to dig a bit deeper into some of the things I had wanted to learn about Python as I fixed a problem I had with my 8-bit assembly code.
 
