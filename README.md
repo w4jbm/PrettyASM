@@ -10,10 +10,10 @@ BTW, I use the 6502 the most, but also work with code for the Z80, 8080/8085, 68
 
 ## Basics
 
-You can run this from the command line once you enable execute priveles for the the file under Linux. You can request help and should see something like this:
+You can run this from the command line once you enable execute priveleges for the the file under Linux. You can request help and should see something like this:
 
 ```
-$ ./PrettyASM.py -h
+$ ./PrettyASM -h
 usage: prettyasm [-h] [-l] [-L] [--colon {add,remove}] [-o] [-O] [-s] [-c]
                  [-C] [--tabs TAB TAB TAB] [-k]
                  input_file output_file
